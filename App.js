@@ -1,67 +1,64 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TextInput, Button, SafeAreaView, FlatList } from 'react-native';
 import adhan from 'adhan'
 import * as Location from 'expo-location';
+import PrayerTimes from './PrayerTimes';
+import Pages from './Quran';
 
-const PrayerTime = (props) => {
-  return (
-    <Text style={styles.paragraph}>
-      {props.time}
-    </Text>
-  )
-}
+
+const DATA = Array.from({ length: 604 },
+  (v, i) => {
+    let obj = {};
+    obj.id = (i + 1).toString();
+    obj.source = Pages[(i + 1).toString()];
+    return obj;
+  });
+
+console.log('data', DATA)
+
+const Item = ({ source }) => (
+  <Image
+    source={source}
+    style={styles.page}
+  />
+);
 
 const App = () => {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
-
-  const params = adhan.CalculationMethod.MuslimWorldLeague();
-  let prayerTimes;
-  if (location) {
-    prayerTimes = new adhan.PrayerTimes(new adhan.Coordinates(location.coords.latitude, location.coords.longitude), new Date(), params);
-  }
+  const renderItem = ({ item }) => (
+    <Item source={item.source} />
+  );
 
   return (
-
-    <View style={styles.container}>
-      {prayerTimes &&
-        <>
-          <PrayerTime time={prayerTimes.fajr.toLocaleTimeString()} />
-          <PrayerTime time={prayerTimes.dhuhr.toLocaleTimeString()} />
-          <PrayerTime time={prayerTimes.asr.toLocaleTimeString()} />
-          <PrayerTime time={prayerTimes.maghrib.toLocaleTimeString()} />
-          <PrayerTime time={prayerTimes.isha.toLocaleTimeString()} />
-        </>
-      }
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={DATA}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+      />
+    </SafeAreaView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: 'red',
+    marginTop: StatusBar.currentHeight || 0,
   },
   paragraph: {
-    fontSize: 18,
+    fontSize: 100,
     textAlign: 'center',
+  },
+  page: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 0.737,
+  },
+  node: {
+    width: '100%',
   },
 });
 
