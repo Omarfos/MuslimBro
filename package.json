@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/slider": "^3.0.3",
     "adhan": "^4.0.1",
     "expo": "~40.0.0",
     "expo-location": "~10.0.0",
